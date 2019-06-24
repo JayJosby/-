@@ -1,0 +1,62 @@
+
+# # 保存
+# dict_name = {1 :{1 :2 ,3 :4} ,2 :{3 :4 ,4 :5}}
+# f = open('C:\\Users\Administrator\Desktop\\temp.txt' , 'w')
+# f.write(str(dict_name))
+# f.close()
+#
+# # 读取
+# f = open('C:\\Users\Administrator\Desktop\\temp.txt' , 'r')
+# a = f.read()
+# dict_name = eval(a)
+# print(dict_name)
+# f.close()
+import tensorflow as tf
+import numpy as np
+
+## prepare the original data
+with tf.name_scope('data'):
+     x_data = np.random.rand(100).astype(np.float32)
+     y_data = 0.3*x_data+0.1
+##creat parameters
+with tf.name_scope('parameters'):
+     with tf.name_scope('weights'):
+           weight = tf.Variable(tf.random_uniform([1],-1.0,1.0))
+           tf.summary.histogram('weight',weight)
+     with tf.name_scope('biases'):
+           bias = tf.Variable(tf.zeros([1]))
+           tf.summary.histogram('bias',bias)
+##get y_prediction
+with tf.name_scope('y_prediction'):
+     y_prediction = weight*x_data+bias
+##compute the loss
+with tf.name_scope('loss'):
+     loss = tf.reduce_mean(tf.square(y_data-y_prediction))
+     tf.summary.scalar('loss',loss)
+##creat optimizer
+optimizer = tf.train.GradientDescentOptimizer(0.5)
+#creat train ,minimize the loss
+with tf.name_scope('train'):
+     train = optimizer.minimize(loss)
+#creat init
+with tf.name_scope('init'):
+     init = tf.global_variables_initializer()
+##creat a Session
+sess = tf.Session()
+#merged
+merged = tf.summary.merge_all()
+##initialize
+writer = tf.summary.FileWriter("logs/", sess.graph)
+sess.run(init)
+## Loop
+saver = tf.train.Saver()
+
+for step  in  range(300):
+    sess.run(train)
+    rs=sess.run(merged)
+    writer.add_summary(rs, step)
+    saver.save(sess, save_path='C:\\Users\Administrator\Desktop\论文\数据\my-test-model',global_step=100)
+# def main():
+#   print("we are in %s"%__name__)
+# if __name__ == '__main__':
+#   main()
